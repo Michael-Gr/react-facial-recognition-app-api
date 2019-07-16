@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
 
 const app = express();
 app.use(bodyParser.json());
@@ -46,16 +47,25 @@ app.get('/profile/:id', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
+	bcrypt.compare(req.body.password, '$2b$10$RtftpePT7z8U9ApiEJQYveza6DNRX8R136Kkd8lBLVxvo7PNWBcju', function(err, res) {
+	    console.log(res);
+	});
+
 	if (req.body.email === database.users[0].email && req.body.password === database.users[0].password) {
 		res.json('signed in');
 	} else {
 		res.status(400).json('error logging in');
 	}
-	res.json('Sign In');
 });
 
 app.post('/register', (req, res) => {
 	const { email, name, password } = req.body;
+	const saltRounds = 10;
+
+	bcrypt.hash(password, saltRounds, function(err, hash) {
+	  console.log(hash);
+	});
+
 	database.users.push(
 		{
 			id: '125',
@@ -87,5 +97,5 @@ app.put('/image', (req, res) => {
 });
 
 app.listen(3000, () => {
-	console.log('bitch please');
+	console.log('API listening to port 3000');
 });
