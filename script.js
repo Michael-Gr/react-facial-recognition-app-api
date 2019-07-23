@@ -2,31 +2,46 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const knex = require('knex');
+
+const database = knex({
+  client: 'pg',
+  connection: {
+    host : '127.0.0.1',
+    user : 'michaelg',
+    password : '',
+    database : 'react-facial-recognition-db'
+  }
+});
+
+database.select('*').from('users').then(data => {
+	console.log(data);
+});
 
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const database = {
-	users: [
-		{
-			id: '123',
-			name: 'john',
-			email: 'john@email.com',
-			password: 'cookies',
-			entries: 0,
-			joined: new Date()
-		},
-		{
-			id: '124',
-			name: 'sally',
-			email: 'sally@email.com',
-			password: 'bananas',
-			entries: 0,
-			joined: new Date()
-		}	
-	]
-}
+// const database = {
+// 	users: [
+// 		{
+// 			id: '123',
+// 			name: 'john',
+// 			email: 'john@email.com',
+// 			password: 'cookies',
+// 			entries: 0,
+// 			joined: new Date()
+// 		},
+// 		{
+// 			id: '124',
+// 			name: 'sally',
+// 			email: 'sally@email.com',
+// 			password: 'bananas',
+// 			entries: 0,
+// 			joined: new Date()
+// 		}	
+// 	]
+// }
 
 app.get('/', (req, res) => {
 	res.send(database.users);
@@ -65,17 +80,13 @@ app.post('/register', (req, res) => {
 	  console.log(hash);
 	});
 
-	database.users.push(
-		{
-			id: '125',
-			name: name,
-			email: email,
-			password: password,
-			entries: 0,
-			joined: new Date()
-		}
-	);
-	res.json(database.users[database.users.length - 1]);
+	database('users').insert({
+		email: email,
+		name: name,
+		joined: new Date()
+	}).then(console.log);
+
+	//res.json(database.users[database.users.length - 1]);
 })
 
 app.listen(3000, () => {
