@@ -14,34 +14,9 @@ const database = knex({
   }
 });
 
-database.select('*').from('users').then(data => {
-	console.log(data);
-});
-
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
-
-// const database = {
-// 	users: [
-// 		{
-// 			id: '123',
-// 			name: 'john',
-// 			email: 'john@email.com',
-// 			password: 'cookies',
-// 			entries: 0,
-// 			joined: new Date()
-// 		},
-// 		{
-// 			id: '124',
-// 			name: 'sally',
-// 			email: 'sally@email.com',
-// 			password: 'bananas',
-// 			entries: 0,
-// 			joined: new Date()
-// 		}	
-// 	]
-// }
 
 app.get('/', (req, res) => {
 	res.send(database.users);
@@ -80,13 +55,17 @@ app.post('/register', (req, res) => {
 	  console.log(hash);
 	});
 
-	database('users').insert({
+	database('users')
+	.returning('*')
+	.insert({
 		email: email,
 		name: name,
 		joined: new Date()
-	}).then(console.log);
-
-	//res.json(database.users[database.users.length - 1]);
+	})
+	.then(user => {
+		res.json(user[0]);
+	})
+	.catch(err => res.status(400).json('Unable to save.'));
 })
 
 app.listen(3000, () => {
