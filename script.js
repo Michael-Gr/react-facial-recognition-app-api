@@ -24,18 +24,12 @@ app.get('/', (req, res) => {
 
 app.get('/profile/:id', (req, res) => {
 	const { id } = req.params;
-	let found = false;
 
-	database.users.forEach( user => {
-		if (user.id === id) {
-			found = true;
-			res.json(user);
-		}
-	});
-
-	if (!found) {
-		res.status(400).json('No user found');
-	}
+	database.select('*').from('users').where({
+		id: id
+	})
+	.then(user => user.length ? res.json(user[0]) : res.status(400).json('No user found.'))
+	.catch(err => res.status(400).json('Error getting user.'));
 });
 
 app.post('/signin', (req, res) => {
