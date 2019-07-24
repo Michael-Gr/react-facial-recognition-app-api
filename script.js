@@ -44,20 +44,30 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
 	const { email, name, password } = req.body;
 	const saltRounds = 10;
+	const salt = bcrypt.genSaltSync(saltRounds);
+	const hash = bcrypt.hashSync(password, salt);
 
-	bcrypt.hash(password, saltRounds, function(err, hash) {
-	  console.log(hash);
-	});
-
-	database('users')
-	.returning('*')
-	.insert({
-		email: email,
-		name: name,
-		joined: new Date()
-	})
-	.then(user => {
-		res.json(user[0]);
+	database.transaction(trx => {
+		trx.insert({
+			hash: hash,
+			email: email
+		})
+		.into('login')
+		.returning('email')
+		.then(loginEmail => {
+			return trx('users')
+				.returning('*')
+				.insert({
+					email: loginEmail[0],
+					name: name,
+					joined: new Date()
+				})
+				.then(user => {
+					res.json(user[0]);
+				})
+		})
+		.then(trx.commit)
+		.catch(trx.rollback)
 	})
 	.catch(err => res.status(400).json('Unable to save.'));
 })
