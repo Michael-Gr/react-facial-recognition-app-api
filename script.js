@@ -7,6 +7,7 @@ const knex = require('knex');
 const register = require('./controllers/register');
 const signin = require('./controllers/signin');
 const profile = require('./controllers/profile');
+const detect = require('./controllers/detect');
 
 const database = knex({
   client: 'pg',
@@ -29,6 +30,8 @@ app.post('/register', register.handleRegister(database, bcrypt));
 app.post('/signin', signin.handleSignin(database, bcrypt));
 
 app.get('/profile/:id', profile.handleProfileGet(database));
+
+app.post('/detect', detect.handleDetect);
 
 app.listen(3000, () => {
 	console.log('API listening to port 3000');
