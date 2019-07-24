@@ -19,7 +19,8 @@ app.use(bodyParser.json());
 app.use(cors());
 
 app.get('/', (req, res) => {
-	res.send(database.users);
+	res.json('Success');
+	//res.send(database.users);
 });
 
 app.get('/profile/:id', (req, res) => {
@@ -33,12 +34,20 @@ app.get('/profile/:id', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
-	if (req.body.email === database.users[0].email && req.body.password === database.users[0].password) {
-		res.json('success');
-	} else {
-		res.status(400).json('error logging in');
-	}
-	res.json(database.users[0]);
+	database.select('email', 'hash').from('login')
+	.where('email', '=', req.body.email)
+	.then(data => {
+		const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+		if (isValid) {
+			database.select('*').from('users')
+			.where('email', '=', data[0].email)
+			.then(user => {res.json(user[0])})
+			.catch(err => {res.status(400).json('Unable to login.')})
+		} else {
+			res.status(400).json('Invalid credentials.');
+		}
+	})
+	.catch(err => {res.status(400).json('Invalid credentials.')});
 });
 
 app.post('/register', (req, res) => {
