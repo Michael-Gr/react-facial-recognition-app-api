@@ -12,7 +12,7 @@ const detect = require('./controllers/detect');
 const database = knex({
   client: 'pg',
   connection: {
-    host : process.env.DATABSE_URL,
+    connectionString: process.env.DATABSE_URL,
     ssl: true
   }
 });
