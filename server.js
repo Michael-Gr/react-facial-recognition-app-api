@@ -12,10 +12,8 @@ const detect = require('./controllers/detect');
 const database = knex({
   client: 'pg',
   connection: {
-    host : '127.0.0.1',
-    user : 'michaelg',
-    password : '',
-    database : 'react-facial-recognition-db'
+    host : process.env.DATABSE_URL,
+    ssl: true
   }
 });
 
