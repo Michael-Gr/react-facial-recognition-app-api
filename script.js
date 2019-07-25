@@ -33,6 +33,6 @@ app.get('/profile/:id', profile.handleProfileGet(database));
 
 app.post('/detect', detect.handleDetect);
 
-app.listen(3000, () => {
-	console.log('API listening to port 3000');
+app.listen(process.env.PORT || 3000, () => {
+	console.log(`API listening to port ${process.env.PORT || 3000}`);
 });
